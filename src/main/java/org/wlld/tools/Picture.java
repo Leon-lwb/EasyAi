@@ -34,10 +34,9 @@ public class Picture {
     }
 
     public ThreeChannelMatrix getThreeMatrix(String fileURL) throws Exception {
-        File file = new File(fileURL);
         BufferedImage bi = null;
-        try {
-            bi = ImageIO.read(file);
+        try (InputStream ins = FileUtils.getInputStream(fileURL)) {
+            bi = ImageIO.read(ins);
         } catch (Exception e) {
             e.printStackTrace();
         }
