@@ -4,34 +4,30 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import org.wlld.MatrixTools.Matrix;
 import org.wlld.config.Config;
-import org.wlld.config.RZ;
 import org.wlld.distinguish.Distinguish;
 import org.wlld.entity.FoodPicture;
 import org.wlld.entity.Model;
 import org.wlld.entity.PicturePosition;
 import org.wlld.entity.ThreeChannelMatrix;
-import org.wlld.function.Tanh;
-import org.wlld.i.OutBack;
-import org.wlld.nerveCenter.NerveManager;
-import org.wlld.nerveEntity.SensoryNerve;
 import org.wlld.pso.PSO;
-import org.wlld.tools.FastPictureExcerpt;
 import org.wlld.tools.Picture;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.InputStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 public class ImageTest {
 
 
     public static void main(String[] args) throws Exception {
-     test();
+     //test();
+        dish();
+        //study();
     }
 
     public static void test() throws Exception {
@@ -92,7 +88,7 @@ public class ImageTest {
         Picture picture = new Picture();
         for (int i = 1; i < 8; i++) {
             System.out.println("i====" + i);
-            ThreeChannelMatrix t = picture.getThreeMatrix("E:\\ls\\fp15\\t" + i + ".jpg");
+            ThreeChannelMatrix t = picture.getThreeMatrix("image/t" + i + ".jpg");
             Map<Integer, Double> map = distinguish.distinguish(t);
             for (Map.Entry<Integer, Double> entry : map.entrySet()) {
                 System.out.println(entry.getKey() + ":" + entry.getValue());
@@ -109,7 +105,7 @@ public class ImageTest {
         config.setPth(0.55);//设置可信概率，只有超过可信概率阈值，得出的结果才是可信的0-1
         config.setShowLog(true);//输出学习时打印数据
         Distinguish distinguish = new Distinguish(config);//识别类
-        distinguish.setBackGround(picture.getThreeMatrix("E:\\ls\\fp15\\back.jpg"));//塞入背景图片
+        distinguish.setBackGround(picture.getThreeMatrix("image/back.jpg"));//塞入背景图片
         List<FoodPicture> foodPictures = new ArrayList<>();//所有识别物体的标注集合
         for (int i = 1; i < 3; i++) {//加载图片全过程
             FoodPicture foodPicture = new FoodPicture();
@@ -125,7 +121,7 @@ public class ImageTest {
                     name = "b";
                 }
                 PicturePosition picturePosition = new PicturePosition();
-                picturePosition.setUrl("E:\\ls\\fp15\\" + name + i + ".jpg");
+                picturePosition.setUrl("image/" + name + i + ".jpg");
                 picturePosition.setNeedCut(false);//是否需要剪切，充满全图不需要
                 picturePositionList.add(picturePosition);
             }
@@ -136,7 +132,7 @@ public class ImageTest {
         //识别过程
         for (int i = 1; i < 8; i++) {
             System.out.println("i====" + i);
-            ThreeChannelMatrix t = picture.getThreeMatrix("E:\\ls\\fp15\\t" + i + ".jpg");
+            ThreeChannelMatrix t = picture.getThreeMatrix("image/t" + i + ".jpg");
             Map<Integer, Double> map = distinguish.distinguish(t);
             for (Map.Entry<Integer, Double> entry : map.entrySet()) {
                 System.out.println(entry.getKey() + ":" + entry.getValue());
