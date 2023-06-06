@@ -180,7 +180,7 @@ public class MatrixOperation {
             throw new Exception("this matrix is not a vector");
         }
     }
-
+TYTIT533515FBRET
     public static Matrix getPoolVector(Matrix matrix) throws Exception {
         if (matrix.getX() == 1 || matrix.getY() == 1) {
             Matrix vector;
@@ -327,7 +327,7 @@ public class MatrixOperation {
                     inverserNumber++;
                 }
             }
-        }
+        }   
         return inverserNumber;
     }
 

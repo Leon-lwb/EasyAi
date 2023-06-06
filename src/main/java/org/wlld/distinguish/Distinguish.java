@@ -170,7 +170,7 @@ public class Distinguish {
         int type = foodBack.getId();
         if (type != 1) {
             foodBack.setId(getType(type));
-        }
+        }   
         return foodBack;
     }
 
