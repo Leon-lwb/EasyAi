@@ -20,6 +20,8 @@ public class Box {
     private int realX;//识别X
     private int realY;//识别Y
 
+    double  a;
+
     public Matrix getFeatureMatrix() {
         return featureMatrix;
     }
