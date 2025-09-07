@@ -89,15 +89,13 @@ EasyAi无任何依赖，它是一个原生Java人工智能算法框架。首先�
 * 目前easyAI只有微信交流群，QQ交流群已经不再拉新，凡是QQ交流群拉进去的，都不是我的群！大家注意！！
 
 ## 部署
-
-* 在pom文件中引入以下JAR包即可
-
+* 最新版本,POM文件配置以下坐标既可
 ```    
-        <dependency>
-             <groupId>org.dromara.easyai</groupId>
-             <artifactId>easyAi</artifactId>
-             <version>1.4.4</version>
-        </dependency>
+    <dependency>
+      <groupId>org.dromara.easyai</groupId>
+      <artifactId>easyAi</artifactId>
+      <version>1.4.9</version>
+    </dependency>
 ```
 
 ## 获得荣誉
@@ -107,7 +105,6 @@ EasyAi无任何依赖，它是一个原生Java人工智能算法框架。首先�
 
 * Gitee GVP最有价值开源项目
 <div><img src="https://myeasyai.cn/img/cup3.jpg" width="400",height="400" alt="Gitee"></div>
-
 
 ### 微信交流群
 

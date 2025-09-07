@@ -1,16 +1,12 @@
 package org.dromara.easyai.yolo;
 
-import org.dromara.easyai.config.ResnetConfig;
-import org.dromara.easyai.matrixTools.Matrix;
-import org.dromara.easyai.config.RZ;
+
 import org.dromara.easyai.entity.Box;
 import org.dromara.easyai.entity.ThreeChannelMatrix;
 import org.dromara.easyai.function.ReLu;
 import org.dromara.easyai.i.OutBack;
 import org.dromara.easyai.nerveCenter.NerveManager;
 import org.dromara.easyai.nerveEntity.SensoryNerve;
-import org.dromara.easyai.resnet.ResnetInput;
-import org.dromara.easyai.resnet.ResnetManager;
 import org.dromara.easyai.tools.NMS;
 import org.dromara.easyai.tools.Picture;
 
@@ -24,6 +20,7 @@ public class FastYolo {//yolo
     private final int winHeight;
     private final int widthStep;
     private final int heightStep;
+    private final boolean proTrust;
 
     public FastYolo(YoloConfig yoloConfig) throws Exception {
         float stepReduce = yoloConfig.getCheckStepReduce();
@@ -32,13 +29,14 @@ public class FastYolo {//yolo
         winWidth = yoloConfig.getWindowWidth();
         widthStep = (int) (winWidth * stepReduce);
         heightStep = (int) (winHeight * stepReduce);
+        proTrust = yoloConfig.isProTrust();
         if (stepReduce <= 1 && widthStep > 0 && heightStep > 0) {
             typeNerveManager = new NerveManager(3, yoloConfig.getHiddenNerveNub(), yoloConfig.getTypeNub() + 1,
                     1, new ReLu(), yoloConfig.getStudyRate(), yoloConfig.getRegularModel(), yoloConfig.getRegular()
                     , yoloConfig.getCoreNumber(), yoloConfig.getGaMa(), yoloConfig.getGMaxTh(), yoloConfig.isAuto());
             typeNerveManager.initImageNet(yoloConfig.getChannelNo(), yoloConfig.getKernelSize(), winHeight, winWidth, true,
                     yoloConfig.isShowLog(), yoloConfig.getStudyRate(), new ReLu(), yoloConfig.getMinFeatureValue(), yoloConfig.getOneConvStudy()
-                    , yoloConfig.isNorm());
+                    , yoloConfig.isNorm(), yoloConfig.getGRate());
         } else {
             throw new Exception("The stepReduce must be (0,1] and widthStep ,heightStep must Greater than 0");
         }
@@ -97,7 +95,7 @@ public class FastYolo {//yolo
         return yoloModel;
     }
 
-    private Box getBox(int i, int j, int maxX, int maxY, PositionBack positionBack, TypeBody typeBody) throws Exception {
+    private Box getBox(int i, int j, int maxX, int maxY, PositionBack positionBack, TypeBody typeBody, float out) throws Exception {
         float zhou = winHeight + winWidth;
         Box box = new Box();
         float centerX = i - positionBack.getDistX() * zhou;
@@ -122,7 +120,13 @@ public class FastYolo {//yolo
         box.setY(realY);
         box.setxSize(height);
         box.setySize(width);
-        box.setConfidence(positionBack.getTrust());
+        float trust;
+        if (proTrust) {
+            trust = out;
+        } else {
+            trust = positionBack.getTrust();
+        }
+        box.setConfidence(trust);
         box.setTypeID(typeBody.getTypeID());
         return box;
     }
@@ -136,6 +140,7 @@ public class FastYolo {//yolo
             outBox.setHeight(box.getxSize());
             outBox.setWidth(box.getySize());
             outBox.setTypeID(String.valueOf(box.getTypeID()));
+            outBox.setTrust(box.getConfidence());
             outBoxes.add(outBox);
         }
         return outBoxes;
@@ -154,11 +159,12 @@ public class FastYolo {//yolo
                 ThreeChannelMatrix myTh = th.cutChannel(i, j, winHeight, winWidth);
                 study(eventID, typeNerveManager.getConvInput(), myTh, false, null, yoloTypeBack);
                 int mappingID = yoloTypeBack.getId();//映射id
-                if (mappingID != typeBodies.size() + 1 && yoloTypeBack.getOut() > pth) {
+                float out = yoloTypeBack.getOut();
+                if (mappingID != typeBodies.size() + 1 && out > pth) {
                     TypeBody typeBody = getTypeBodyByMappingID(mappingID);
                     SensoryNerve convInput = typeBody.getPositionNerveManager().getConvInput();
                     study(eventID, convInput, myTh, false, null, positionBack);
-                    boxes.add(getBox(i, j, x, y, positionBack, typeBody));
+                    boxes.add(getBox(i, j, x, y, positionBack, typeBody, out));
                 }
             }
         }
@@ -288,7 +294,7 @@ public class FastYolo {//yolo
         }
     }
 
-    private TypeBody getTypeBodyByMappingID(int mappingID) {
+    public TypeBody getTypeBodyByMappingID(int mappingID) {
         TypeBody ty = null;
         for (TypeBody yb : typeBodies) {
             if (yb.getMappingID() == mappingID) {
@@ -299,7 +305,7 @@ public class FastYolo {//yolo
         return ty;
     }
 
-    private TypeBody getTypeBodyByTypeID(int typeID) {
+    public TypeBody getTypeBodyByTypeID(int typeID) {
         TypeBody ty = null;
         for (TypeBody yb : typeBodies) {
             if (yb.getTypeID() == typeID) {

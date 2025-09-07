@@ -11,6 +11,22 @@ public class MatrixOperation {
     private ExecutorService POOL;//线程池
 
     private static final CudaMatrix cudaMatrix = getCudaMatrix();
+    private static final AscendMatrix ascendMatrix = getAscendMatrix();
+
+    private static AscendMatrix getAscendMatrix() {
+        ServiceLoader<AscendMatrix> loader = ServiceLoader.load(AscendMatrix.class);
+        Iterator<AscendMatrix> iterator = loader.iterator();
+        if (iterator.hasNext()) {
+            AscendMatrix cm = iterator.next();
+            try {
+                cm.init();
+                return cm;
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return null;
+    }
 
     private static CudaMatrix getCudaMatrix() {
         ServiceLoader<CudaMatrix> loader = ServiceLoader.load(CudaMatrix.class);
@@ -643,7 +659,13 @@ public class MatrixOperation {
                         float nowNumber = columnNumber * rowNumber;
                         columnAllNumber = columnAllNumber + nowNumber;
                     }
-                    matrix.setNub(i, j, columnAllNumber);
+                    if (!Float.isNaN(columnAllNumber)) {
+                        matrix.setNub(i, j, columnAllNumber);
+                    } else {
+                        System.out.println(matrix1);
+                        System.out.println(matrix2);
+                        throw new Exception("计算时出现数值溢出，梯度爆炸!");
+                    }
                 }
             }
             return matrix;
@@ -690,6 +712,8 @@ public class MatrixOperation {
     public Matrix mulMatrix(Matrix matrix1, Matrix matrix2) throws Exception {//矩阵相乘
         if (null != cudaMatrix) {
             return cudaMatrix.mulMatrix(matrix1, matrix2);
+        } else if (null != ascendMatrix) {
+            return ascendMatrix.mulMatrix(matrix1, matrix2);
         }
 
         if (coreNumber > 1) {
@@ -710,6 +734,12 @@ public class MatrixOperation {
             }
         }
         return myMatrix;
+    }
+
+    public void mathMulByList(List<Matrix> matrixList, float value) throws Exception {
+        for (Matrix matrix : matrixList) {
+            mathMul(matrix, value);
+        }
     }
 
     //重点
