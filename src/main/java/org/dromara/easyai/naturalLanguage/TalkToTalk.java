@@ -3,17 +3,13 @@ package org.dromara.easyai.naturalLanguage;
 import org.dromara.easyai.config.TfConfig;
 import org.dromara.easyai.entity.TalkBody;
 import org.dromara.easyai.i.OutBack;
-import org.dromara.easyai.matrixTools.Matrix;
-import org.dromara.easyai.matrixTools.MatrixOperation;
 import org.dromara.easyai.naturalLanguage.word.WordBack;
-import org.dromara.easyai.naturalLanguage.word.WordEmbedding;
 import org.dromara.easyai.transFormer.TransFormerManager;
 import org.dromara.easyai.transFormer.TransWordVector;
 import org.dromara.easyai.transFormer.model.TransFormerModel;
 import org.dromara.easyai.transFormer.nerve.SensoryNerve;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class TalkToTalk {
@@ -89,7 +85,10 @@ public class TalkToTalk {
                 index++;
                 String question = talkBody.getQuestion();
                 String answer = talkBody.getAnswer();
-                System.out.println("问题:" + question + ", 回答:" + answer + ",训练语句下标:" + index + ",总数量:" + size + ",当前次数：" + k + ",总次数:" + times);
+                System.out.println(
+                        String.format("问题:%s, 回答:%s, 训练语句下标:%d, 总数量:%d, 当前次数:%d, 总次数:%d",
+                                question, answer, index, size, k, times)
+                );
                 sensoryNerve.postSentence(1, question, answer, true, logOutBack);
             }
         }
